@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import morgan from "morgan";
 import dotenv from "dotenv";
 import authRoutes from "../src/routes/auth.route";
 import leadRoutes from "../src/routes/lead.route";
@@ -18,15 +17,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
       "https://lead-management-u6hp.vercel.app",
     ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);
-
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(helmet());
-app.use(morgan("dev"));
 app.use(express.json());
 
 connectDB();

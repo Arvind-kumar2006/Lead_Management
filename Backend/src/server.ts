@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import authRoutes from "./routes/auth.route";
 import leadRoutes from "./routes/lead.route";
-import morgan from "morgan";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 
@@ -12,12 +11,11 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
   : ["http://localhost:5173"];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(helmet());
-app.use(morgan("dev"));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5555;
@@ -31,6 +29,4 @@ app.get("/", (_req, res) => {
   res.json({ message: "SmartLeads API is running." });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT);
