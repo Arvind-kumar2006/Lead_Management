@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchLeads, createLead, updateLead, deleteLead } from "../api/leads";
+import { fetchLeads, createLead, updateLead, deleteLead, fetchLeadStats } from "../api/leads";
 import { useAuthStore } from "../store/authStore";
 import useDebounce from "../hooks/useDebounce";
 import { exportLeadsToCsv } from "../utils/exportCsv";
@@ -69,41 +69,17 @@ function Dashboard() {
   const leads: Lead[] = data?.data ?? [];
   const pagination = data?.pagination;
 
-  const { data: statsAll } = useQuery({
-    queryKey: ["stats", "all"],
-    queryFn: () => fetchLeads(new URLSearchParams("page=1")),
-    staleTime: 30_000,
+  const { data: statsData } = useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchLeadStats,
+    staleTime: 60_000,
   });
 
-  const { data: statsNew } = useQuery({
-    queryKey: ["stats", "new"],
-    queryFn: () => fetchLeads(new URLSearchParams("page=1&status=new")),
-    staleTime: 30_000,
-  });
-
-  const { data: statsContacted } = useQuery({
-    queryKey: ["stats", "contacted"],
-    queryFn: () => fetchLeads(new URLSearchParams("page=1&status=contacted")),
-    staleTime: 30_000,
-  });
-
-  const { data: statsQualified } = useQuery({
-    queryKey: ["stats", "qualified"],
-    queryFn: () => fetchLeads(new URLSearchParams("page=1&status=qualified")),
-    staleTime: 30_000,
-  });
-
-  const { data: statsLost } = useQuery({
-    queryKey: ["stats", "lost"],
-    queryFn: () => fetchLeads(new URLSearchParams("page=1&status=lost")),
-    staleTime: 30_000,
-  });
-
-  const totalLeads     = statsAll?.pagination.totalRecords       ?? 0;
-  const newLeadsCount  = statsNew?.pagination.totalRecords       ?? 0;
-  const contactedCount = statsContacted?.pagination.totalRecords ?? 0;
-  const qualifiedCount = statsQualified?.pagination.totalRecords ?? 0;
-  const lostCount      = statsLost?.pagination.totalRecords      ?? 0;
+  const totalLeads     = statsData?.data.total     ?? 0;
+  const newLeadsCount  = statsData?.data.new       ?? 0;
+  const contactedCount = statsData?.data.contacted ?? 0;
+  const qualifiedCount = statsData?.data.qualified ?? 0;
+  const lostCount      = statsData?.data.lost      ?? 0;
 
   const createMutation = useMutation({
     mutationFn: (payload: CreateLeadPayload) => createLead(payload),

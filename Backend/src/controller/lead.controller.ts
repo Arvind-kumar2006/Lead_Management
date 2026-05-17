@@ -142,7 +142,32 @@ export const deleteLead = async (req: Request,res: Response): Promise<void> => {
 
   } catch (error) {
     console.error(error);
-
     res.status(500).json({ success: false, message: "Failed to delete lead"});
+  }
+};
+
+export const getLeadStats = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const [total, newCount, contactedCount, qualifiedCount, lostCount] = await Promise.all([
+      Lead.countDocuments({}),
+      Lead.countDocuments({ status: "new" }),
+      Lead.countDocuments({ status: "contacted" }),
+      Lead.countDocuments({ status: "qualified" }),
+      Lead.countDocuments({ status: "lost" }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        total,
+        new: newCount,
+        contacted: contactedCount,
+        qualified: qualifiedCount,
+        lost: lostCount,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to fetch stats" });
   }
 };

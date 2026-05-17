@@ -34,3 +34,16 @@ export const deleteLead = async (id: string): Promise<ApiResponse<null>> => {
   const response = await api.delete<ApiResponse<null>>(`/leads/${id}`);
   return response.data;
 };
+
+export interface LeadStats {
+  total: number;
+  new: number;
+  contacted: number;
+  qualified: number;
+  lost: number;
+}
+
+export const fetchLeadStats = async (): Promise<{ success: boolean; data: LeadStats }> => {
+  const response = await api.get<{ success: boolean; data: LeadStats }>("/leads/stats");
+  return response.data;
+};
